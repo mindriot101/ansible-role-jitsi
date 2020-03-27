@@ -1,0 +1,59 @@
+- name: Update package cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install pip
+  include_role:
+    name: geerlingguy.pip
+  vars:
+    pip_install_packages:
+      - name: docker
+
+- name: Install docker
+  include_role:
+    name: geerlingguy.docker
+  vars:
+    docker_edition: 'ce'
+    docker_install_compose: true
+
+- name: Install docker package
+  apt:
+    name:
+      - python3-docker
+      - python-docker
+    state: present
+
+- name: Install docker compose python library
+  pip:
+    name:
+      - docker-compose
+    state: present
+
+- name: Fetch the source code
+  git:
+    repo: https://github.com/jitsi/docker-jitsi-meet
+    version: stable-4101-2
+    dest: "{{ jitsi_dir }}"
+    update: yes
+
+- name: Create the environment file
+  template:
+    src: env.j2
+    dest: "{{ jitsi_dir }}/.env"
+
+- name: Create the initial config directory structure
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  with_items:
+    - "{{ jitsi_config_dir }}/web/letsencrypt"
+    - "{{ jitsi_config_dir }}/transcripts"
+    - "{{ jitsi_config_dir }}/prosody"
+    - "{{ jitsi_config_dir }}/jicofo"
+    - "{{ jitsi_config_dir }}/jvb"
+
+- name: Run the docker compose file
+  docker_compose:
+    project_src: "{{ jitsi_dir }}"

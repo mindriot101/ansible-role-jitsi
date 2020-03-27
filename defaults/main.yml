@@ -1,0 +1,6 @@
+---
+jitsi_dir: /opt/jitsi
+jitsi_config_dir: "{{ jitsi_dir }}/config"
+jitsi_port: 8090
+jitsi_timezone: Europe/London
+jitsi_public_url: https://example.com
