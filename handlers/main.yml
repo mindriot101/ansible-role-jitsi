@@ -1,2 +1,6 @@
 ---
-# handlers file for jitsi2
+- name: restart containers
+  docker_compose:
+    project_src: "{{ jitsi_dir }}"
+    state: present
+    restarted: yes
